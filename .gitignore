@@ -1,45 +1,36 @@
 ```
 # Dependencies
 node_modules/
-backend/node_modules/
-frontend/node_modules/
 
-# Environment variables
+# Test files
+**/__tests__/
+**/*.test.js
+
+# Package lock files
+package-lock.json
+
+# Environment
 .env
 .env.local
 .env.*
 
-# Build outputs
-backend/dist/
-frontend/dist/
-build/
-target/
-
 # Logs
 *.log
 
-# OS generated files
-.DS_Store
-Thumbs.db
-
-# Editor/IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-*.tmp
-
-# Python specific (if any Python files exist in backend)
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Coverage reports
+# Coverage
 coverage/
 htmlcov/
 .coverage
 
-# Local configuration
-.env.example
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp files
+*.tmp
+*.swp
 ```

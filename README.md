@@ -93,10 +93,14 @@ npm run dev
 
 ## 🔐 Default Credentials
 
+> ⚠️ **Security Warning**: Change these default credentials immediately in production!
+
 ```
 Email: admin@example.com
-Password: password123
+Password: <SET_YOUR_OWN_SECURE_PASSWORD>
 ```
+
+To create a new user with a secure password, use the registration endpoint or update the database directly.
 
 ## 📁 Project Structure
 
