@@ -1,34 +1,47 @@
 ```
 # Dependencies
 node_modules/
+package-lock.json
 
-# Logs
-*.log
-backend/logs/
-
-# Environment variables
+# Environment
 .env
 .env.local
 .env.*
 
-# Build outputs
-dist/
-build/
-coverage/
-htmlcov/
-
-# IDE files
+# Editors
 .vscode/
 .idea/
 
-# OS files
-.DS_Store
-Thumbs.db
-
-# Temp files
+# Logs and temp files
+*.log
 *.tmp
 *.swp
-*.swo
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+.coverage
+coverage/
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
+# OS generated files
+.DS_Store
+Thumbs.db
 
 # Compressed files
 *.zip
@@ -53,8 +66,4 @@ Thumbs.db
 *.tar.bz2
 *.tar.xz
 *.tar.zst
-
-# Backend specific
-backend/node_modules/
-backend/logs/
 ```
