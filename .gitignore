@@ -1,23 +1,33 @@
-```
 # Dependencies
 node_modules/
 
-# Test files
-**/__tests__/
-**/*.test.js
+# Build artifacts
+dist/
+build/
+target/
 
-# Package lock files
-package-lock.json
-
-# Environment
+# Environment variables
 .env
 .env.local
 .env.*
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+.venv.bak/
+pip-log.txt
+pip-delete-this-directory.txt
+
 # Logs
 *.log
 
-# Coverage
+# Coverage reports
 coverage/
 htmlcov/
 .coverage
@@ -25,12 +35,55 @@ htmlcov/
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
+*.tmp
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Temp files
-*.tmp
-*.swp
-```
+# Testing
+.mypy_cache/
+.pytest_cache/
+.nyc_output/
+istanbul.out
+coverage-final.json
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# mypy
+.mypy_cache/
+
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
