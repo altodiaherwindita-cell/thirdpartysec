@@ -1,10 +1,66 @@
 const OpenAI = require('openai');
 const { logger } = require('../config/logger');
 
-// Initialize OpenAI client (or compatible API)
-const openai = process.env.OPENAI_API_KEY 
-  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+// Configuration for different AI providers
+const AI_PROVIDERS = {
+  openai: {
+    baseURL: 'https://api.openai.com/v1',
+    models: ['gpt-4', 'gpt-4-turbo', 'gpt-3.5-turbo']
+  },
+  qwen: {
+    // Qwen via OpenRouter (international access, free tier available)
+    // Get API key from: https://openrouter.ai/
+    baseURL: 'https://openrouter.ai/api/v1',
+    models: ['qwen/qwen-2.5-72b-instruct', 'qwen/qwen-plus']
+  },
+  qwen_direct: {
+    // Direct Qwen API (if you have Alibaba Cloud access)
+    baseURL: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
+    models: ['qwen-plus', 'qwen-turbo']
+  },
+  gemini: {
+    // Google Gemini via OpenRouter
+    // Get API key from: https://openrouter.ai/ or https://aistudio.google.com/
+    baseURL: 'https://openrouter.ai/api/v1',
+    models: ['google/gemini-pro-1.5', 'google/gemini-flash-1.5']
+  },
+  gemini_direct: {
+    // Direct Google AI Studio API
+    baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/',
+    models: ['gemini-1.5-pro', 'gemini-1.5-flash']
+  },
+  ollama: {
+    // Local Ollama instance (free, self-hosted)
+    baseURL: 'http://localhost:11434/v1',
+    models: ['llama3.1', 'mistral', 'qwen2.5']
+  },
+  lmstudio: {
+    // Local LM Studio (free, self-hosted)
+    baseURL: 'http://localhost:1234/v1',
+    models: ['local-model']
+  }
+};
+
+// Determine provider from environment or default to qwen (free tier)
+const AI_PROVIDER = process.env.AI_PROVIDER || 'qwen';
+const providerConfig = AI_PROVIDERS[AI_PROVIDER] || AI_PROVIDERS.qwen;
+
+// Initialize AI client
+const aiClient = process.env.AI_API_KEY 
+  ? new OpenAI({ 
+      apiKey: process.env.AI_API_KEY,
+      baseURL: process.env.AI_BASE_URL || providerConfig.baseURL
+    })
   : null;
+
+// Get the model to use
+const getModel = () => {
+  if (process.env.AI_MODEL) {
+    return process.env.AI_MODEL;
+  }
+  // Default model based on provider
+  return providerConfig.models[0];
+};
 
 /**
  * Analyze vendor assessment responses using AI
@@ -13,8 +69,8 @@ const openai = process.env.OPENAI_API_KEY
  */
 const analyzeAssessment = async (responses) => {
   // If no API key configured, return mock analysis
-  if (!openai) {
-    logger.warn('OpenAI not configured, using rule-based analysis');
+  if (!aiClient) {
+    logger.warn('AI not configured, using rule-based analysis');
     return performRuleBasedAnalysis(responses);
   }
 
@@ -22,21 +78,18 @@ const analyzeAssessment = async (responses) => {
     // Prepare context for AI
     const context = prepareAnalysisContext(responses);
 
-    const prompt = `
-You are a cybersecurity and GRC expert analyzing a third-party vendor security assessment.
-Analyze the vendor's responses and provide a structured risk assessment.
+    const prompt = `Analyze the following vendor security assessment responses and provide a structured risk assessment in JSON format.
 
-## Assessment Responses:
+Assessment Responses:
 ${context}
 
-## Task:
-Analyze these responses and provide:
+Provide your analysis with:
 1. Overall risk level (low, medium, high, critical)
 2. Key security issues identified
 3. Control gaps based on ISO 27001:2022
 4. Specific recommendations for mitigation
 
-## Output Format (JSON only):
+Output ONLY valid JSON with this structure:
 {
   "risk_level": "low|medium|high|critical",
   "risk_score": 0-100,
@@ -57,16 +110,11 @@ Analyze these responses and provide:
   "summary": "Executive summary of the security posture"
 }
 
-Important:
-- Be critical but fair in your assessment
-- Flag any suspicious or inconsistent answers
-- Consider the sensitivity of data being shared
-- Highlight missing evidence or vague responses
-- Align recommendations with ISO 27001:2022 and industry best practices
+Important: Be critical but fair, flag suspicious answers, consider data sensitivity, highlight missing evidence, and align with ISO 27001:2022.
 `;
 
-    const completion = await openai.chat.completions.create({
-      model: process.env.AI_MODEL || 'gpt-4',
+    const completion = await aiClient.chat.completions.create({
+      model: getModel(),
       messages: [
         {
           role: 'system',
@@ -85,12 +133,13 @@ Important:
     
     logger.info('AI analysis completed', { 
       riskLevel: analysis.risk_level,
-      issuesCount: analysis.issues?.length || 0 
+      issuesCount: analysis.issues?.length || 0,
+      provider: AI_PROVIDER
     });
 
     return analysis;
   } catch (error) {
-    logger.error('AI analysis failed', { error: error.message });
+    logger.error('AI analysis failed', { error: error.message, provider: AI_PROVIDER });
     // Fallback to rule-based analysis
     return performRuleBasedAnalysis(responses);
   }
@@ -247,23 +296,20 @@ const prepareAnalysisContext = (responses) => {
  * Get AI assistance for a specific question (vendor assist mode)
  */
 const getQuestionGuidance = async (questionText, questionType) => {
-  if (!openai) {
+  if (!aiClient) {
     return getDefaultGuidance(questionText, questionType);
   }
 
   try {
-    const prompt = `
-Provide helpful guidance for answering this security questionnaire question.
-Do NOT provide the answer directly, but explain what the question is asking and what evidence might be relevant.
+    const prompt = `Provide helpful guidance for answering this security questionnaire question. Do NOT provide the answer directly, but explain what the question is asking and what evidence might be relevant.
 
 Question: ${questionText}
 Type: ${questionType}
 
-Provide a brief, helpful explanation (2-3 sentences) that helps the vendor understand what is being asked.
-`;
+Provide a brief, helpful explanation (2-3 sentences) that helps the vendor understand what is being asked.`;
 
-    const completion = await openai.chat.completions.create({
-      model: process.env.AI_MODEL || 'gpt-4',
+    const completion = await aiClient.chat.completions.create({
+      model: getModel(),
       messages: [
         {
           role: 'system',
@@ -280,10 +326,11 @@ Provide a brief, helpful explanation (2-3 sentences) that helps the vendor under
 
     return {
       guidance: completion.choices[0].message.content,
-      type: 'ai_generated'
+      type: 'ai_generated',
+      provider: AI_PROVIDER
     };
   } catch (error) {
-    logger.warn('AI guidance failed, using defaults', { error: error.message });
+    logger.warn('AI guidance failed, using defaults', { error: error.message, provider: AI_PROVIDER });
     return getDefaultGuidance(questionText, questionType);
   }
 };

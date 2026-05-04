@@ -30,7 +30,7 @@ A production-ready web application for cybersecurity/GRC teams to assess, monito
 - Node.js + Express
 - PostgreSQL
 - JWT Authentication
-- OpenAI API (optional)
+- Multi-provider AI API (Qwen, Gemini, OpenAI, Ollama, etc.)
 - Nodemailer (SMTP)
 
 ### Frontend
@@ -131,14 +131,65 @@ To create a new user with a secure password, use the registration endpoint or up
 
 ## 🤖 AI Integration
 
-The platform includes optional AI-powered features:
+The platform includes optional AI-powered features with support for multiple providers:
 
 1. **Assessment Analysis** - Automatically analyzes vendor responses
 2. **Risk Scoring** - Suggests risk levels based on answers
 3. **Control Gap Detection** - Identifies missing security controls
 4. **Mitigation Recommendations** - Generates actionable remediation steps
 
-Set `OPENAI_API_KEY` in `.env` to enable AI features. Falls back to rule-based analysis if not configured.
+### Supported AI Providers
+
+#### Free Tier Options (Recommended)
+
+**Qwen via OpenRouter** (Default)
+- Free tier with daily limits
+- Get API key from: https://openrouter.ai/
+- Set in `.env`: `AI_PROVIDER=qwen`
+
+**Gemini via Google AI Studio**
+- Free tier: 60 requests/minute
+- Get API key from: https://aistudio.google.com/apikey
+- Set in `.env`: `AI_PROVIDER=gemini_direct`
+
+**Local Ollama** (Completely Free)
+- Self-hosted, no API limits
+- Install from: https://ollama.ai/
+- Set in `.env`: `AI_PROVIDER=ollama`
+
+**Local LM Studio** (Completely Free)
+- Self-hosted, supports any model
+- Download from: https://lmstudio.ai/
+- Set in `.env`: `AI_PROVIDER=lmstudio`
+
+#### Paid Options
+
+**OpenAI**
+- Set in `.env`: `AI_PROVIDER=openai`
+
+**Direct Qwen API** (Alibaba Cloud)
+- Set in `.env`: `AI_PROVIDER=qwen_direct`
+
+### Configuration
+
+Copy `.env.example` to `.env` and configure your preferred provider. The system automatically falls back to rule-based analysis if no API key is configured.
+
+Example for Qwen (free tier):
+```bash
+AI_PROVIDER=qwen
+AI_API_KEY=your-openrouter-api-key
+AI_MODEL=qwen/qwen-2.5-72b-instruct
+```
+
+Example for Gemini (free tier):
+```bash
+AI_PROVIDER=gemini_direct
+AI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
+AI_API_KEY=your-google-ai-studio-api-key
+AI_MODEL=gemini-1.5-flash
+```
+
+See `.env.example` for all available options.
 
 ## 📊 API Endpoints
 
