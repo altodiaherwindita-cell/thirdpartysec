@@ -222,3 +222,14 @@ CREATE TRIGGER update_assessment_responses_updated_at BEFORE UPDATE ON assessmen
 CREATE TRIGGER update_risks_updated_at BEFORE UPDATE ON risks FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_documents_updated_at BEFORE UPDATE ON documents FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_data_flows_updated_at BEFORE UPDATE ON data_flows FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Insert default admin user (password: Admin123!@#)
+-- Password hash generated using bcrypt with salt rounds = 10
+INSERT INTO users (email, password_hash, full_name, role, department) 
+VALUES (
+  'admin@example.com',
+  '$2a$10$LT9H/hGrI5ysZ9JDyD5pHOaGawFQG4dliRdzdsD0YhFLzb6U4rjKy',
+  'System Administrator',
+  'admin',
+  'IT Security'
+);
