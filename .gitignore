@@ -1,11 +1,9 @@
 ```
-# Build artifacts
-frontend/dist/
+# Environment variables
+.env
+.env.local
+.env.*
 
-# Dependencies
-node_modules/
-frontend/node_modules/
-
-# Package lock files
-package-lock.json
+# Docker
+.dockerenv
 ```
