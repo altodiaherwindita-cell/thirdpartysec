@@ -5,33 +5,38 @@ services:
     image: postgres:15-alpine
     container_name: vendor_security_db
     environment:
-      POSTGRES_DB: vendor_security_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: ${DB_NAME:-vendor_security_db}
+      POSTGRES_USER: ${DB_USER:-your_db_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-change_me_in_production}
+    # Do not expose database port to host in production
+    # Only accessible internally via Docker network
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/src/config/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-your_db_user}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - backend_network
+    restart: unless-stopped
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: vendor_security_api
+    env_file:
+      - ./backend/.env
     environment:
       NODE_ENV: production
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: vendor_security_db
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      JWT_SECRET: ${JWT_SECRET:-your_super_secret_jwt_key_change_in_production}
+      DB_NAME: ${DB_NAME:-vendor_security_db}
+      DB_USER: ${DB_USER:-your_db_user}
+      DB_PASSWORD: ${DB_PASSWORD:-change_me_in_production}
+      JWT_SECRET: ${JWT_SECRET:-change_me_in_production_generate_with_openssl_rand_hex_32}
       PORT: 3000
     ports:
       - "3000:3000"
@@ -41,7 +46,13 @@ services:
     volumes:
       - ./backend/uploads:/app/uploads
       - ./backend/logs:/app/logs
+    networks:
+      - backend_network
+      - frontend_network
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
 
   frontend:
     build:
@@ -54,11 +65,19 @@ services:
       - "80:80"
     depends_on:
       - backend
+    networks:
+      - frontend_network
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
 
 volumes:
   postgres_data:
 
 networks:
-  default:
-    name: vendor_security_network
+  backend_network:
+    name: vendor_security_backend
+    driver: bridge
+  frontend_network:
+    name: vendor_security_frontend
+    driver: bridge
