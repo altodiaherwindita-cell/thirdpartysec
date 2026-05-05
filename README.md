@@ -45,39 +45,136 @@ A production-ready web application for cybersecurity/GRC teams to assess, monito
 - Multi-stage builds
 - Health checks
 
-## 📦 Quick Start
+---
+
+## 📦 Quick Start with Docker (Recommended)
+
+### Prerequisites
+- Docker (version 20.10+)
+- Docker Compose (version 2.0+)
+
+> 💡 **Note**: You do NOT need to install Node.js or PostgreSQL locally when using Docker.
+
+### Step-by-Step Docker Setup
+
+#### 1. Clone and Navigate to Project
+```bash
+cd /workspace
+```
+
+#### 2. Configure Environment Variables
+```bash
+# Copy the example environment file
+cp backend/.env.example backend/.env
+
+# Edit the .env file with your settings
+# Use your preferred text editor (nano, vim, code, etc.)
+nano backend/.env
+```
+
+**Required settings to configure in `backend/.env`:**
+- `JWT_SECRET` - Generate a secure random string (e.g., `openssl rand -hex 32`)
+- `DB_PASSWORD` - Your desired database password
+- `ALLOWED_ORIGINS` - Set to `http://localhost` for local development
+- `AI_API_KEY` - Optional: Your AI provider API key (leave empty for rule-based fallback)
+
+#### 3. Start All Services
+```bash
+# Build and start PostgreSQL, Backend, and Frontend
+docker-compose up -d --build
+```
+
+#### 4. Verify Services are Running
+```bash
+# Check container status
+docker-compose ps
+
+# View logs (optional)
+docker-compose logs -f
+```
+
+#### 5. Access the Application
+- **Frontend**: http://localhost
+- **Backend API**: http://localhost:3000
+- **Database**: localhost:5432
+
+#### 6. Initialize Database (First Time Only)
+The database schema is automatically initialized on first startup. Wait ~30 seconds for PostgreSQL to be ready.
+
+#### 7. Login
+Use the default credentials (change immediately in production):
+```
+Email: admin@example.com
+Password: Admin123!@#
+```
+
+### Common Docker Commands
+
+```bash
+# View running containers
+docker-compose ps
+
+# View logs
+docker-compose logs -f           # All services
+docker-compose logs -f backend   # Backend only
+docker-compose logs -f postgres  # Database only
+
+# Restart services
+docker-compose restart
+docker-compose restart backend   # Specific service
+
+# Stop all services
+docker-compose down
+
+# Stop and remove volumes (⚠️ deletes all data!)
+docker-compose down -v
+
+# Rebuild after code changes
+docker-compose up -d --build
+
+# Run database migrations manually
+docker-compose exec backend npm run db:migrate
+```
+
+### Troubleshooting Docker
+
+**Issue: Container won't start**
+```bash
+# Check logs for errors
+docker-compose logs backend
+
+# Ensure no port conflicts
+docker ps | grep :3000
+docker ps | grep :5432
+```
+
+**Issue: Database connection failed**
+```bash
+# Wait for PostgreSQL health check
+docker-compose logs -f postgres
+
+# Restart backend after DB is ready
+docker-compose restart backend
+```
+
+**Issue: CORS errors**
+- Ensure `ALLOWED_ORIGINS=http://localhost` in `backend/.env`
+- Restart backend: `docker-compose restart backend`
+
+---
+
+## 🖥️ Manual Setup (Without Docker)
 
 ### Prerequisites
 - Node.js 18+
 - PostgreSQL 15+
-- Docker (optional)
-
-### Option 1: Docker Compose (Recommended)
-
-```bash
-cd /workspace
-
-# Copy environment file
-cp backend/.env.example backend/.env
-
-# Edit backend/.env with your settings
-
-# Start all services
-docker-compose up -d
-
-# Access the application
-# Frontend: http://localhost:5173
-# Backend API: http://localhost:3000
-# Database: localhost:5432
-```
-
-### Option 2: Manual Setup
 
 #### Backend Setup
 ```bash
 cd backend
 npm install
 cp .env.example .env
+# Edit .env with your settings
 createdb vendor_security_db
 psql -d vendor_security_db -f src/config/schema.sql
 psql -d vendor_security_db -f src/utils/seed.sql
@@ -91,16 +188,20 @@ npm install
 npm run dev
 ```
 
+---
+
 ## 🔐 Default Credentials
 
 > ⚠️ **Security Warning**: Change these default credentials immediately in production!
 
 ```
 Email: admin@example.com
-Password: <SET_YOUR_OWN_SECURE_PASSWORD>
+Password: Admin123!@#
 ```
 
 To create a new user with a secure password, use the registration endpoint or update the database directly.
+
+---
 
 ## 📁 Project Structure
 
@@ -128,6 +229,8 @@ To create a new user with a secure password, use the registration endpoint or up
 ├── SYSTEM.md
 └── README.md
 ```
+
+---
 
 ## 🤖 AI Integration
 
@@ -191,6 +294,8 @@ AI_MODEL=gemini-1.5-flash
 
 See `.env.example` for all available options.
 
+---
+
 ## 📊 API Endpoints
 
 ### Authentication
@@ -223,6 +328,8 @@ See `.env.example` for all available options.
 - `DELETE /api/documents/:id` - Delete document
 - `GET /api/documents/alerts/expiring` - Get expiring documents
 
+---
+
 ## 🔒 Security Considerations
 
 1. **Change default secrets** - Update `JWT_SECRET` in production
@@ -230,6 +337,8 @@ See `.env.example` for all available options.
 3. **Configure SMTP** - Set up proper email credentials
 4. **File upload limits** - Adjust `MAX_FILE_SIZE` as needed
 5. **Database backups** - Implement regular backup procedures
+
+---
 
 ## 📈 Risk Model
 
@@ -240,6 +349,8 @@ See `.env.example` for all available options.
 | **High** | Medium | High | Critical |
 | **Medium** | Low | Medium | High |
 | **Low** | Low | Low | Medium |
+
+---
 
 ## 🎯 Compliance Alignment
 
