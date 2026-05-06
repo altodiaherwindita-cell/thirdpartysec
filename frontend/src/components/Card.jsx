@@ -7,7 +7,7 @@ import React from 'react';
 export const Card = ({ children, className = '', ...props }) => {
   return (
     <div 
-      className={`bg-white rounded-lg shadow-md p-6 ${className}`}
+      className={`card ${className}`}
       {...props}
     >
       {children}
