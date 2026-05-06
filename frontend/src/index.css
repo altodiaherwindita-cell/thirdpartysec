@@ -40,9 +40,9 @@ body {
 
 @layer components {
   .btn-primary {
-    @apply bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 
+    @apply bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700
            text-white font-semibold py-2.5 px-5 rounded-xl 
-           transition-all duration-200 shadow-md hover:shadow-lg 
+           transition-all duration-200 shadow-md shadow-blue-500/30 hover:shadow-lg hover:shadow-blue-500/40
            transform hover:-translate-y-0.5 disabled:transform-none
            disabled:from-blue-400 disabled:to-blue-500;
   }
@@ -54,7 +54,7 @@ body {
   }
   
   .card {
-    @apply bg-white rounded-2xl shadow-sm border border-gray-200 p-6 
+    @apply bg-white rounded-2xl shadow-sm border border-gray-200/50 p-6 
            hover:shadow-md transition-shadow duration-200;
   }
   
@@ -74,28 +74,28 @@ body {
   }
   
   .badge-low {
-    @apply bg-green-100 text-green-800;
+    @apply bg-emerald-100 text-emerald-700 border border-emerald-200;
   }
   
   .badge-medium {
-    @apply bg-yellow-100 text-yellow-800;
+    @apply bg-amber-100 text-amber-700 border border-amber-200;
   }
   
   .badge-high {
-    @apply bg-red-100 text-red-800;
+    @apply bg-red-100 text-red-700 border border-red-200;
   }
   
   .badge-critical {
-    @apply bg-red-200 text-red-900;
+    @apply bg-red-200 text-red-900 border border-red-300;
   }
 
   .stat-card {
-    @apply bg-white rounded-2xl shadow-sm border border-gray-200 p-6 
+    @apply bg-white rounded-2xl shadow-sm border border-gray-200/50 p-6 
            hover:shadow-md transition-all duration-200;
   }
 
   .gradient-text {
-    @apply bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent;
   }
 }
 
@@ -136,10 +136,23 @@ body {
   }
 }
 
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out forwards;
 }
 
 .animate-slide-in {
   animation: slideIn 0.3s ease-out forwards;
+}
+
+.animate-pulse-slow {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
