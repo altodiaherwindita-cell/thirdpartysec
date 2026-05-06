@@ -11,7 +11,13 @@ import {
   Filter,
   LogOut,
   User,
-  Bell
+  Bell,
+  TrendingUp,
+  TrendingDown,
+  CheckCircle2,
+  Clock,
+  BarChart3,
+  Activity
 } from 'lucide-react';
 
 const Dashboard = () => {
@@ -20,7 +26,9 @@ const Dashboard = () => {
     total: 0,
     highRisk: 0,
     pendingAssessments: 0,
-    expiringDocuments: 0
+    expiringDocuments: 0,
+    complianceScore: 85,
+    riskTrend: 'stable'
   });
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -50,7 +58,9 @@ const Dashboard = () => {
         total: vendorsRes.data.vendors?.length || 0,
         highRisk: vendorsRes.data.vendors?.filter(v => v.risk_tier === 'high' || v.risk_tier === 'critical').length || 0,
         pendingAssessments: allAssessments.filter(a => a.status === 'pending' || a.status === 'in_progress').length,
-        expiringDocuments: 0
+        expiringDocuments: 3, // Mock data - would calculate from contract dates
+        complianceScore: Math.round(Math.random() * 20 + 75), // Mock score between 75-95
+        riskTrend: allRisks.length > 5 ? 'increasing' : 'decreasing'
       });
     } catch (error) {
       console.error('Failed to load dashboard data:', error);

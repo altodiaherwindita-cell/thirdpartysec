@@ -1,9 +1,35 @@
-```
+```gitignore
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+build/
+*.min.js
+*.min.css
+*.bundle.js
+
 # Environment variables
 .env
 .env.local
-.env.*
+*.env.*
 
-# Docker
-.dockerenv
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Temporary files
+*.tmp
+.DS_Store
+Thumbs.db
 ```
